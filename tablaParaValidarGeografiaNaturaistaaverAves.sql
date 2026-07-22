@@ -1,3 +1,5 @@
+-- Hace falta agregar campo public_posicional_accuracy para corte Naturalista
+
 drop table if exists naturalista20241207.tablaunion_valgeo_AvesNaturalista;
 
 create table naturalista20241207.tablaunion_valgeo_AvesNaturalista
@@ -72,12 +74,23 @@ where (place_country_name like "%Mexico%" or place_country_name='' or place_coun
 
 call snib.13_NullAVacio_tabla('naturalista202404','tablaunion_valgeo_AvesNaturalista');
 
-alter table naturalista20241207.tablaunion_valgeo_AvesNaturalista add column llaveagrupado2024 varchar(32);
+alter table naturalista20241207.tablaunion_valgeo_AvesNaturalista add column llaveagrupado2024 varchar(32),add column llavecomparaPEMavesnat varchar(32) not null default '';
 
 update naturalista20241207.tablaunion_valgeo_AvesNaturalista
-set llaveagrupado2024=MD5(concat(pais_intacto,estado_intacto,admin1_naturalista,municipio_intacto,admin2_naturalista,localidad_intacta,town_name_naturalista,ifnull(latitud_intacta,'latitud'),ifnull(longitud_intacta,'longitud'),coordinates_obscured_naturalista,proyecto));
+set llavecomparaPEMavesnat=MD5(concat(if(pais_intacto is null or pais_intacto='','pais_intacto',pais_intacto),
+if(estado_intacto is null or estado_intacto='','estado_intacto',estado_intacto),
+if(admin1_naturalista is null or admin1_naturalista='','admin1_naturalista',admin1_naturalista),
+if(municipio_intacto is null or municipio_intacto='','municipio_intacto',municipio_intacto),
+if(admin2_naturalista is null or admin2_naturalista='','admin2_naturalista',admin2_naturalista)));
+
+update naturalista20241207.tablaunion_valgeo_AvesNaturalista
+set llavecomparaLocAvesNat=MD5(concat(if(localidad_intacta is null or localidad_intacta='','localidad_intacta',localidad_intacta),
+if(town_name_naturalista is null or town_name_naturalista='','town_name_naturalista',town_name_naturalista)));
+
+update naturalista20241207.tablaunion_valgeo_AvesNaturalista
+set llaveagrupado2024=MD5(concat(llavecomparaPEMavesnat,pais_intacto,estado_intacto,admin1_naturalista,municipio_intacto,admin2_naturalista,llavecomparaLocAvesNat,localidad_intacta,town_name_naturalista,ifnull(latitud_intacta,'latitud'),ifnull(longitud_intacta,'longitud'),coordinates_obscured_naturalista,proyecto));
 
 create table naturalista20241207.tablaunion_valgeo_AvesNaturalista_agrupado
-select llaveagrupado2024,pais_intacto,estado_intacto,admin1_naturalista,municipio_intacto,admin2_naturalista,localidad_intacta,town_name_naturalista,latitud_intacta,longitud_intacta,coordinates_obscured_naturalista,proyecto,count(1) as ejemplares
+select llaveagrupado2024,llavecomparaPEMavesnat,pais_intacto,estado_intacto,admin1_naturalista,municipio_intacto,admin2_naturalista,llavecomparaLocAvesNat,localidad_intacta,town_name_naturalista,latitud_intacta,longitud_intacta,coordinates_obscured_naturalista,proyecto,count(1) as ejemplares
 from naturalista20241207.tablaunion_valgeo_AvesNaturalista
 group by llaveagrupado2024;
