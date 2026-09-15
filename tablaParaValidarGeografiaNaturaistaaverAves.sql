@@ -7,6 +7,22 @@ SELECT '' as global_unique_identifier,id,null as id_privadas,place_country_name 
 place_town_name as town_name_naturalista,latitude as latitud_intacta,longitude as longitud_intacta,coordinates_obscured as coordinates_obscured_naturalista,'naturalista' as proyecto
 FROM naturalista####.observations_snib o;
 
+-- revisar y ajustar el ALTER TABLE
+
+select max(char_length(place_country_name)) from observations_snib; 
+
+select max(char_length(place_state_name)) from observations_snib;
+
+select max(char_length(place_admin1_name)) from observations_snib;
+
+select max(char_length(place_admin2_name)) from observations_snib;
+
+select max(char_length(place_county_name)) from observations_snib;
+
+select max(char_length(place_guess)) from observations_snib;
+
+select max(char_length(place_town_name)) from observations_snib;
+
 ALTER TABLE naturalista####.tablaunion_valgeo_AvesNaturalista MODIFY COLUMN global_unique_identifier VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
 modify column id bigint(20) DEFAULT null,
 MODIFY COLUMN id_privadas bigint(20) DEFAULT null,
@@ -15,7 +31,7 @@ MODIFY COLUMN estado_intacto varchar(50) default '',
 MODIFY COLUMN municipio_intacto varchar(200) default '',
 MODIFY COLUMN admin1_naturalista varchar(30) default '',
 MODIFY COLUMN admin2_naturalista varchar(80) default '',
-MODIFY COLUMN town_name_naturalista varchar(70) default '',
+MODIFY COLUMN town_name_naturalista varchar(75) default '',
 MODIFY COLUMN proyecto varchar(50) default '';
 
 
