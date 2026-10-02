@@ -60,7 +60,7 @@ where coordinates_obscured='true' and observacionusoinformacion not like "%Coord
 
 -- Buscamos ejemplares del corte naturalista que cuando ingresaron  al snib tenían coordenadas privadas y en esta entrega ya no cuentan con coordenadas privadas.
 create table naturalista####.obscurecida_ahoraNO_antesSI
-select o.id,estadoregistro,proyecto
+select o.id,estadoregistro,proyecto,e.llaveejemplar
 FROM observations o inner join snib.ejemplar_curatorial e on o.id=e.idejemplaroriginal
 inner join snib.proyecto p using(llaveproyecto)
 where if(coordinates_obscured='true','SI','NO')='NO' and observacionusoinformacion like "%Coordenada obscurecida%"; -- no puse where proyecto='Naturalista' porque se cuelga la consulta
@@ -90,8 +90,8 @@ where (place_country_name like "%Mexico%" or place_country_name='' or place_coun
 
 call snib.13_NullAVacio_tabla('naturalista####','tablaunion_valgeo_AvesNaturalista');
 
-alter table naturalista####.tablaunion_valgeo_AvesNaturalista add column llaveagrupado2024 varchar(32),add column llavecomparaPEMavesnat varchar(32) not null default ''
-add column llavecomparaLocAvesNat llavecomparaLocAvesNat;
+alter table naturalista####.tablaunion_valgeo_AvesNaturalista add column llaveagrupado#### varchar(32),add column llavecomparaPEMavesnat varchar(32) not null default '',
+add column llavecomparaLocAvesNat varchar(32) not null default '';
 
 update naturalista####.tablaunion_valgeo_AvesNaturalista
 set llavecomparaPEMavesnat=MD5(concat(if(pais_intacto is null or pais_intacto='','pais_intacto',pais_intacto),
@@ -105,9 +105,9 @@ set llavecomparaLocAvesNat=MD5(concat(if(localidad_intacta is null or localidad_
 if(town_name_naturalista is null or town_name_naturalista='','town_name_naturalista',town_name_naturalista)));
 
 update naturalista####.tablaunion_valgeo_AvesNaturalista
-set llaveagrupado2024=MD5(concat(llavecomparaPEMavesnat,llavecomparaLocAvesNat,ifnull(latitud_intacta,'latitud'),ifnull(longitud_intacta,'longitud'),coordinates_obscured_naturalista,proyecto));
+set llaveagrupado####=MD5(concat(llavecomparaPEMavesnat,llavecomparaLocAvesNat,ifnull(latitud_intacta,'latitud'),ifnull(longitud_intacta,'longitud'),coordinates_obscured_naturalista,proyecto));
 
 create table naturalista####.tablaunion_valgeo_AvesNaturalista_agrupado
-select llaveagrupado2024,llavecomparaPEMavesnat,pais_intacto,estado_intacto,admin1_naturalista,municipio_intacto,admin2_naturalista,llavecomparaLocAvesNat,localidad_intacta,town_name_naturalista,latitud_intacta,longitud_intacta,coordinates_obscured_naturalista,proyecto,count(1) as ejemplares
+select llaveagrupado####,llavecomparaPEMavesnat,pais_intacto,estado_intacto,admin1_naturalista,municipio_intacto,admin2_naturalista,llavecomparaLocAvesNat,localidad_intacta,town_name_naturalista,latitud_intacta,longitud_intacta,coordinates_obscured_naturalista,proyecto,count(1) as ejemplares
 from naturalista####.tablaunion_valgeo_AvesNaturalista
-group by llaveagrupado2024;
+group by llaveagrupado####;
